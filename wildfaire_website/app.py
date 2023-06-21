@@ -1,17 +1,29 @@
-import streamlit as st
+
+import pandas as pd
+
 import requests
+
+import folium
+import streamlit as st
+
+from streamlit_folium import st_folium, folium_static
+
+from components.geocoding import nifc_active_fires
 from components.geocoding import geocode_address
+from components.geocoding import search_area_buffer
 from components.geocoding import nasa_fire_events
+from components.geocoding import map_create
+
 
 st.set_page_config(page_title="WildfAIre version1", page_icon=":fire:", layout="wide")
 
-#from components.sidebar import sidebar
-#from components.geocoding import geocode_address
+#load active fires from NIFC service
+active_fires = nifc_active_fires()
 
 st.header=("WildfAire - wildfire tracking application")
 st.title(":fire: WildfAire: wildfire tracking :fire:")
 
-#call sidebar function from sidebar.py to create data entry sidebar
+#create data entry form in sidebar
 with st.sidebar:
     ## basic markdown instructions
     st.markdown(
@@ -23,27 +35,51 @@ with st.sidebar:
 
     with st.form(key='address'):
             ##address details to be submitted to geocoding API
-            street = st.text_input('Street', key='my_street')
-            town = st.text_input('Town', key='my_town')
-            state = st.text_input('State/County', key='my_county')
-            zip = st.text_input('ZIP/Postcode', key='my_postcode')
-            country = st.selectbox('Country', ['France', 'United Kingdom', 'United States'], key='my_country')
+            street = st.text_input('Street')
+            town = st.text_input('Town')
+            state = st.text_input('State/County')
+            zip = st.text_input('ZIP/Postcode')
+            country = st.selectbox('Country', ['France', 'United Kingdom', 'United States'])
+            search_area = st.number_input('Search area (km)', min_value=10, max_value=100)
             address_to_geocode = f"{street},{town},{state},{zip},{country}"
             submit_button = st.form_submit_button(label="Submit")
 
 #if submit button is pressed then send address to the geocoder to get lat/lon
 if submit_button:
     geocode_result = geocode_address(address_to_geocode)
-#if the no geocoding result then write the error message to screen
+
+#if no geocoding result write the error message to screen
 #else send the lat/long to the NASA events API to retrieve fire events near location
     if(len(geocode_result) == 1):
          st.write(geocode_result[0])
     else:
          st.markdown('under development...creating the search area')
-        # fire_events = nasa_fire_events(geocode_result[0], geocode_result[1])
+         #st.write(search_area_buffer(geocode_result[0], geocode_result[1]))
+         ## create search buffer (50 km square around the address location)
+         search_poly = search_area_buffer(geocode_result[0], geocode_result[1])
+         ## call NASA event API for fire events in search area using the search square
+         st.write(search_poly['bbox'])
+         ###====== superseded ================================
+         #fire_events = nasa_fire_events(search_poly['bbox'])
+         #st.write(fire_events)
+         ###==================================================
+
+        # m = folium.Map(location=[geocode_result[0], geocode_result[1]], zoom_start=8)
+         #fire_features = pd.json_normalize(active_fires['features'])
+
+         #geo_json = folium.GeoJson(data=active_fires)
+         #geo_json.add_to(m)
+         #folium.features.GeoJson(active_fires, popup=folium.features.GeoJsonPopup(fields=['attr_IncidentShortDescription', 'poly_GISAcres'])).add_to(m)
+
+         #m
+
+         map_plot = map_create(geocode_result[0],
+                                     geocode_result[1],
+                                      search_poly['bbox'],
+                                      active_fires)
 
 
-
+         folium_static(map_plot)
 
 
 
@@ -57,16 +93,6 @@ if submit_button:
     # can enter location
     # map centred on location provided
 
-#user_address = sidebar.address
-#st.write(st.session_state['value'])
-
-#street = st.text_input('Street')
-#town = st.text_input('Town')
-#state = st.text_input('State/County')
-#zip = st.text_input('ZIP/Postcode')
-#country = st.selectbox('Country', ['France', 'United Kingdom', 'United States'])
-
-#address = f"{street},{town},{state},{country}"
 
 
 
@@ -81,7 +107,6 @@ if submit_button:
     #need to convert location to Km to set search area??
 
 ## NASA events API for wildfires in given date range, location and categorised as open
-##https://eonet.gsfc.nasa.gov/api/v3/events?category=wildfires&start=2022-01-01&end=2023-06-19&status=open&bbox=-111.00,50.73,-58.71,12.89
 
 
 #3. dummy data 'forecast output'

@@ -1,0 +1,9 @@
+array
+branca==0.3.1
+folium
+geopandas
+json
+math
+nifc_wildfires
+requests
+shapely
