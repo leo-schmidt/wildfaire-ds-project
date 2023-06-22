@@ -1,7 +1,6 @@
 from fastapi import FastAPI, Response
 import numpy as np
 from PIL import Image
-import cv2
 import io
 from pydantic import BaseModel
 
