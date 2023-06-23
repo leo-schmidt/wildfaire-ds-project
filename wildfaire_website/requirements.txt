@@ -5,5 +5,9 @@ geopandas
 json
 math
 nifc_wildfires
+numpy
+pandas
+pyproj
 requests
 shapely
+time
