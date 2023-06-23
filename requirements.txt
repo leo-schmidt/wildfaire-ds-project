@@ -1,3 +1,17 @@
+array
+folium
+geopandas
+json
+math
+nifc_wildfires
+numpy
+pandas
+pyproj
+requests
+shapely
+time
+
+
 python-multipart==0.0.6
 fastapi==0.97.0
 opencv-python==4.7.0.72
@@ -7,3 +21,4 @@ tensorflow==2.12.0
 matplotlib==3.5.3
 uvicorn==0.22.0
 Pillow==9.5.0
+branca==0.3.1
