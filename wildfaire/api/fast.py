@@ -11,7 +11,9 @@ app = FastAPI()
 
 # define data type of the input for the API endpoint
 class Data(BaseModel):
-    data: list
+    lon: str
+    lat: str
+    input_features: list
 
 # landing page
 @app.get("/")
@@ -28,15 +30,24 @@ def predict(data: Data):
     Returns: Dummy Numpy array of size 64x64 filled with zeros.
     """
 
+    # input data
+    lon = data.lon
+    lat = data.lat
+    input_features = data.input_features
+
     # dummy prediction
     prediction = np.zeros((64,64), dtype=np.uint8)
 
     # return JSON containing prediction array
     # only works if converted to a list first
-    return {'fire_spread': prediction.tolist()}
+    return {
+            'lon' : lon,
+            'lat' : lat,
+            'fire_spread': prediction.tolist()
+        }
 
 @app.post('/predict_image', response_class=Response)
-def predict_image():
+def predict_image(data: Data):
     """
     Make a single prediction.
     Input: List created from array of size 64x64x12.

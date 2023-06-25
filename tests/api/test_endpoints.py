@@ -5,7 +5,9 @@ import os
 
 # test input is an array of shape 64x64x12 like the real input later
 test_input = {
-                'data' : np.zeros((64,64,12), dtype=np.uint8).tolist()
+                'lon' : -119.117,
+                'lat' : 46.201,
+                'input_features' : np.zeros((64,64,12), dtype=np.uint8).tolist()
                 }
 
 @pytest.mark.asyncio
@@ -38,7 +40,7 @@ async def test_predict_is_dict():
     async with AsyncClient(app=app, base_url="http://localhost:8000") as ac:
         response = await ac.post("/predict", json=test_input)
     assert isinstance(response.json(), dict)
-    assert len(response.json()) == 1
+    assert len(response.json()) == 3
 
 
 @pytest.mark.asyncio
