@@ -23,10 +23,11 @@ GCR_MEMORY = os.environ.get("GCR_MEMORY")
 
 ##################  CONSTANTS  #####################
 LOCAL_DATA_PATH = os.path.join(os.path.expanduser('~'), "Documents", "GitHub", "Wildfaire", "data")
-LOCAL_REGISTRY_PATH =  os.path.join(os.path.expanduser('~'), ".lewagon", "mlops", "training_outputs")
+LOCAL_REGISTRY_PATH =  os.path.join(os.path.expanduser('~'), ".lewagon", "mlops", "training_outputs") #To change
 
-COLUMN_NAMES_RAW = ['fare_amount','pickup_datetime', 'pickup_longitude', 'pickup_latitude', 'dropoff_longitude', 'dropoff_latitude', 'passenger_count']
-
+COLUMN_NAMES_RAW = ['elevation', 'th', 'vs',  'tmmn', 'tmmx', 'sph',
+                  'pr', 'pdsi', 'NDVI', 'population', 'erc', 'PrevFireMask']
+## To change
 DTYPES_RAW = {
     "fare_amount": "float32",
     "pickup_datetime": "datetime64[ns, UTC]",
@@ -36,9 +37,9 @@ DTYPES_RAW = {
     "dropoff_latitude": "float32",
     "passenger_count": "int16"
 }
-
+## To change
 DTYPES_PROCESSED = np.float32
-
+## To change
 
 
 ################## VALIDATIONS #################
