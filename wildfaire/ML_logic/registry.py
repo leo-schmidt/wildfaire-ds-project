@@ -35,8 +35,8 @@ def save_results(params: dict, metrics: dict) -> None:
 def save_model(model: keras.Model = None) -> None:
     """
     Persist trained model locally on the hard drive at f"{LOCAL_REGISTRY_PATH}/models/{timestamp}.h5"
-    - if MODEL_TARGET='gcs', also persist it in your bucket on GCS at "models/{timestamp}.h5" --> unit 02 only
-    - if MODEL_TARGET='mlflow', also persist it on MLflow instead of GCS (for unit 0703 only) --> unit 03 only
+    - if MODEL_TARGET='gcs', also persist it in your bucket on GCS at "models/{timestamp}.h5"
+    - if MODEL_TARGET='mlflow', also persist it on MLflow instead of GCS
     """
 
     timestamp = time.strftime("%Y%m%d-%H%M%S")
@@ -48,8 +48,6 @@ def save_model(model: keras.Model = None) -> None:
     print("✅ Model saved locally")
 
     if MODEL_TARGET == "gcs":
-        # 🎁 We give you this piece of code as a gift. Please read it carefully! Add a breakpoint if needed!
-
         model_filename = model_path.split("/")[-1] # e.g. "20230208-161047.h5" for instance
         client = storage.Client()
         bucket = client.bucket(BUCKET_NAME)
@@ -67,8 +65,8 @@ def load_model(stage="Production") -> keras.Model:
     """
     Return a saved model:
     - locally (latest one in alphabetical order)
-    - or from GCS (most recent one) if MODEL_TARGET=='gcs'  --> for unit 02 only
-    - or from MLFLOW (by "stage") if MODEL_TARGET=='mlflow' --> for unit 03 only
+    - or from GCS (most recent one) if MODEL_TARGET=='gcs'
+    - or from MLFLOW (by "stage") if MODEL_TARGET=='mlflow'
 
     Return None (but do not Raise) if no model is found
 
@@ -95,7 +93,6 @@ def load_model(stage="Production") -> keras.Model:
         return latest_model
 
     elif MODEL_TARGET == "gcs":
-        # 🎁 We give you this piece of code as a gift. Please read it carefully! Add a breakpoint if needed!
         print(Fore.BLUE + f"\nLoad latest model from GCS..." + Style.RESET_ALL)
 
         client = storage.Client()

@@ -33,10 +33,6 @@ GS_DIR=gs://wildfaire_data
 
 show_sources_all:
 	-ls -laR ~/.lewagon/mlops/data
-	-bq ls ${BQ_DATASET}
-	-bq show ${BQ_DATASET}.processed_1k
-	-bq show ${BQ_DATASET}.processed_200k
-	-bq show ${BQ_DATASET}.processed_all
 	-gsutil ls gs://${BUCKET_NAME}
 
 reset_local_files:
@@ -57,13 +53,6 @@ reset_local_files_with_csv_solutions: reset_local_files
 	-curl ${HTTPS_DIR}solutions/data_processed_fixture_2009-01-01_2015-01-01_200k.csv > ${ML_DIR}/data/processed/processed_2009-01-01_2015-01-01_200k.csv
 	-curl ${HTTPS_DIR}solutions/data_processed_fixture_2009-01-01_2015-01-01_all.csv > ${ML_DIR}/data/processed/processed_2009-01-01_2015-01-01_all.csv
 
-reset_bq_files:
-	-bq rm --project_id ${GCP_PROJECT} ${BQ_DATASET}.processed_1k
-	-bq rm --project_id ${GCP_PROJECT} ${BQ_DATASET}.processed_200k
-	-bq rm --project_id ${GCP_PROJECT} ${BQ_DATASET}.processed_all
-	-bq mk --sync --project_id ${GCP_PROJECT} --location=${BQ_REGION} ${BQ_DATASET}.processed_1k
-	-bq mk --sync --project_id ${GCP_PROJECT} --location=${BQ_REGION} ${BQ_DATASET}.processed_200k
-	-bq mk --sync --project_id ${GCP_PROJECT} --location=${BQ_REGION} ${BQ_DATASET}.processed_all
 
 reset_gcs_files:
 	-gsutil rm -r gs://${BUCKET_NAME}
