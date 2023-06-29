@@ -3,12 +3,12 @@ import pandas as pd
 import numpy as np
 
 import requests
-import shapely
 import nifc_wildfires
 import folium
-import json
 import pyproj
+import rasterio
 
+from folium.raster_layers import ImageOverlay
 from math import sqrt
 from shapely import wkt
 from shapely.ops import transform
@@ -40,7 +40,7 @@ def geocode_address(input_address):
 
     response = requests.get(url, params=params).json()
     repsonse_length = len(response)
-
+    print(response)
     if(repsonse_length == 0):
         return [':warning: Could not geocode the address - check address and try again :warning:']
     else:
@@ -85,7 +85,6 @@ def process_wildfires(latitude, longitude, active_fires, search_area):
         #polygon: Polygon = shape(geo)
 
         polygon_feat_proj = transform(project.transform, row['geometry'])
-        #print(round(search_centroid.distance(polygon_feat_proj.boundary)/1000))
         active_fires.at[index,'distance'] = (round(search_centroid.distance(polygon_feat_proj.boundary)/1000))
 
     selected_wildfires = active_fires.loc[active_fires['distance'] < search_area]
@@ -98,7 +97,8 @@ def map_create(latitude, longitude,
                search_poly,
                active_fires,
                other_wildfires,
-               forecast_fires):
+               forecast_fires,
+               rasterIDs):
     '''
     stitch data together for plotting on a folium map
     map will contain:
@@ -122,12 +122,6 @@ def map_create(latitude, longitude,
         geo_active_fires.add_child(folium.Popup(r['poly_GISAcres'])) #creates popup but no content????
         m.add_child(geo_active_fires)
 
-    #add other fires to map
-    for _, s in other_wildfires.iterrows():
-        geo_other_fires = gpd.GeoSeries(s['geometry']).to_json()
-        geo_other_fires = folium.GeoJson(data=geo_other_fires)
-        m.add_child(geo_other_fires)
-
     #add forecast to map
     for _, f in forecast_fires.iterrows():
         geo_forecast_fires = gpd.GeoSeries(f['geometry']).to_json()
@@ -135,9 +129,46 @@ def map_create(latitude, longitude,
 
         m.add_child(geo_forecast_fires)
 
+    #add other fires to map
+    for _, s in other_wildfires.iterrows():
+        geo_other_fires = gpd.GeoSeries(s['geometry']).to_json()
+        geo_other_fires = folium.GeoJson(data=geo_other_fires)
+        m.add_child(geo_other_fires)
+
+    #def get_color(x):
+    #    decimals = 2
+    #    x = np.around(x, decimals=decimals)
+    #    ls = np.linspace(0,1,10**decimals+1)
+    #    if x == 1:
+    #        return cm.get_cmap('viridis')(ls)[np.argwhere(ls==x)]
+    #    elif x==0:
+    #        return (0, 0, 0, 0)
+    #    else:
+    #        raise ValueError()
+
+    for i in rasterIDs:
+        raster_img = rasterio.open(f"{i}_raster.tif")
+        array = raster_img.read()
+        bounds = raster_img.bounds
+
+        x1,y1,x2,y2 = raster_img.bounds
+        bbox = [(bounds.bottom, bounds.left), (bounds.top, bounds.right)]
+
+        img = folium.raster_layers.ImageOverlay(
+            image=np.moveaxis(array, 0, -1),
+            name='sample map',
+            opacity=1,
+            bounds=bbox,
+            interactive=True,
+            cross_origin=False,
+            zindex=1
+         #   colormap=lambda x: get_color(x)
+        )
+
+        img.add_to(m)
+
     #add layer control widget to map
     folium.LayerControl().add_to(m)
-
     #return map to app.py
     return m
 
@@ -149,6 +180,7 @@ def pseudo_data(selected_fires):
     forecast_fires = selected_fires.translate(0.1,0.2)
     forecast_fires = gpd.GeoDataFrame(forecast_fires)
     forecast_fires.rename(columns={0: 'geometry'}, inplace=True)
+
     return forecast_fires
 
 

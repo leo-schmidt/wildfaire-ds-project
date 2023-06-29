@@ -1,16 +1,14 @@
-array
 folium
+geocube
 geopandas
-json
-math
 nifc_wildfires
 numpy
 pandas
 pyproj
-requests
+rasterio
 shapely
-time
-
+streamlit
+streamlit_folium
 
 python-multipart==0.0.6
 fastapi==0.97.0
