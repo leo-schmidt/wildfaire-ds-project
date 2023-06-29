@@ -1,15 +1,12 @@
-array
 folium
 geopandas
-json
-math
 nifc_wildfires
 numpy
 pandas
 pyproj
 requests
 shapely
-time
+earthengine-api
 
 
 python-multipart==0.0.6
