@@ -7,8 +7,6 @@ CHUNK_SIZE = int(os.environ.get("CHUNK_SIZE"))
 MODEL_TARGET = os.environ.get("MODEL_TARGET")
 GCP_PROJECT = os.environ.get("GCP_PROJECT")
 GCP_REGION = os.environ.get("GCP_REGION")
-BQ_DATASET = os.environ.get("BQ_DATASET")
-BQ_REGION = os.environ.get("BQ_REGION")
 BUCKET_NAME = os.environ.get("BUCKET_NAME")
 INSTANCE = os.environ.get("INSTANCE")
 MLFLOW_TRACKING_URI = os.environ.get("MLFLOW_TRACKING_URI")
@@ -27,19 +25,6 @@ LOCAL_REGISTRY_PATH =  os.path.join(os.path.expanduser('~'), ".lewagon", "mlops"
 
 COLUMN_NAMES_RAW = ['elevation', 'th', 'vs',  'tmmn', 'tmmx', 'sph',
                   'pr', 'pdsi', 'NDVI', 'population', 'erc', 'PrevFireMask']
-## To change
-DTYPES_RAW = {
-    "fare_amount": "float32",
-    "pickup_datetime": "datetime64[ns, UTC]",
-    "pickup_longitude": "float32",
-    "pickup_latitude": "float32",
-    "dropoff_longitude": "float32",
-    "dropoff_latitude": "float32",
-    "passenger_count": "int16"
-}
-## To change
-DTYPES_PROCESSED = np.float32
-## To change
 
 
 ################## VALIDATIONS #################

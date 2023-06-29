@@ -27,23 +27,23 @@ test_api_predict:
 ################### DATA SOURCES ACTIONS ################
 
 # Data sources: targets for monthly data imports
-ML_DIR=~/.lewagon/mlops
+ML_DIR=~/Documents/GitHub/Wildfaire/wildfaire/ML_logic
 HTTPS_DIR=https://console.cloud.google.com/storage/browser/wildfaire_data
 GS_DIR=gs://wildfaire_data
 
 show_sources_all:
-	-ls -laR ~/.lewagon/mlops/data
+	-ls -laR ~/Documents/GitHub/Wildfaire/wildfaire/ML_logic
 	-gsutil ls gs://${BUCKET_NAME}
 
 reset_local_files:
 	rm -rf ${ML_DIR}
-	mkdir -p ~/.lewagon/mlops/data/
-	mkdir ~/.lewagon/mlops/data/raw
-	mkdir ~/.lewagon/mlops/data/processed
-	mkdir ~/.lewagon/mlops/training_outputs
-	mkdir ~/.lewagon/mlops/training_outputs/metrics
-	mkdir ~/.lewagon/mlops/training_outputs/models
-	mkdir ~/.lewagon/mlops/training_outputs/params
+	mkdir -p ~/Documents/GitHub/Wildfaire/wildfaire/ML_logic/data
+	mkdir ~/Documents/GitHub/Wildfaire/wildfaire/ML_logic/data/raw
+	mkdir ~/Documents/GitHub/Wildfaire/wildfaire/ML_logic/data/processed
+	mkdir ~/Documents/GitHub/Wildfaire/wildfaire/ML_logic/training_outputs
+	mkdir ~/Documents/GitHub/Wildfaire/wildfaire/ML_logic/training_outputs/metrics
+	mkdir ~/Documents/GitHub/Wildfaire/wildfaire/ML_logic/training_outputs/models
+	mkdir ~/Documents/GitHub/Wildfaire/wildfaire/ML_logic/training_outputs/params
 
 reset_local_files_with_csv_solutions: reset_local_files
 	-curl ${HTTPS_DIR}solutions/data_query_fixture_2009-01-01_2015-01-01_1k.csv > ${ML_DIR}/data/raw/query_2009-01-01_2015-01-01_1k.csv
