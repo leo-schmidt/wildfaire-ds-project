@@ -1,9 +1,11 @@
 folium
+geocube
 geopandas
 nifc_wildfires
 numpy
 pandas
 pyproj
+rasterio
 shapely
 streamlit
 streamlit_folium
