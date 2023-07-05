@@ -15,6 +15,26 @@ train_pattern = os.path.join(dirname, 'next_day_wildfire_spread_train*')
 test_pattern = os.path.join(dirname, 'next_day_wildfire_spread_test*')
 eval_pattern = os.path.join(dirname, 'next_day_wildfire_spread_eval*')
 
+def get_file_paths():
+    '''
+    This function returns 3 strings
+    file paths for the train, test and evaluation datasets
+
+    Call it like this: train_pattern, test_pattern, eval_pattern = get_file_paths()
+
+    '''
+    folder = os.getcwd()
+    if folder.endswith('hooks'):
+        name = os.path.join('..', '..', 'raw_data')
+    elif directory.endswith('wildfaire'):
+        name = os.path.join('..', 'raw_data')
+    else:
+        name = 'raw_data'
+    train_pattern = os.path.join(name, 'next_day_wildfire_spread_train*')
+    test_pattern = os.path.join(name, 'next_day_wildfire_spread_test*')
+    eval_pattern = os.path.join(name, 'next_day_wildfire_spread_eval*')
+    return train_pattern, test_pattern, eval_pattern
+
 # Define features
 INPUT_FEATURES = ['elevation', 'th', 'vs',  'tmmn', 'tmmx', 'sph',
                   'pr', 'pdsi', 'NDVI', 'population', 'erc', 'PrevFireMask']
@@ -280,10 +300,16 @@ def _parse_fn(
   return input_img, output_img
 
 
-def get_dataset(file_pattern: str, data_size: int, sample_size: int,
-                batch_size: int, num_in_channels: int, compression_type: str,
-                clip_and_normalize: bool, clip_and_rescale: bool,
-                random_crop: bool, center_crop: bool) -> tf.data.Dataset:
+def get_dataset(file_pattern: str,
+    data_size = 64,
+    sample_size = 32,
+    batch_size = 100,
+    num_in_channels = 12,
+    compression_type = None,
+    clip_and_normalize = False,
+    clip_and_rescale = False,
+    random_crop = True,
+    center_crop = False) -> tf.data.Dataset:
   """Gets the dataset from the file pattern.
 
   Args:
