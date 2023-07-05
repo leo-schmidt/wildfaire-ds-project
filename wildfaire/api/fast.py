@@ -3,11 +3,14 @@ import numpy as np
 from PIL import Image
 import io
 from pydantic import BaseModel
+from wildfaire.ML_logic.registry import load_model
+from wildfaire.ML_logic.preprocessor import preprocess_features
 
 app = FastAPI()
 
 # load model here
-# app.state.model = ...
+model = app.state.model
+assert model is not None
 
 # define data type of the input for the API endpoint
 class Data(BaseModel):
@@ -34,9 +37,10 @@ def predict(data: Data):
     lon = data.lon
     lat = data.lat
     input_features = data.input_features
+    X_pred = preprocess_features(input_features)  ##If needed
 
     # dummy prediction
-    prediction = np.zeros((64,64), dtype=np.uint8)
+    prediction = model.predict(X_pred)
 
     # return JSON containing prediction array
     # only works if converted to a list first

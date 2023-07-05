@@ -7,6 +7,23 @@ reinstall_package:
 run_api:
 	uvicorn wildfaire.api.fast:app --reload
 
+run_data:
+	python -c 'from wildfaire.interface.main import preprocess; data()'
+
+run_preprocess:
+	python -c 'from wildfaire.interface.main import preprocess; preprocess()'
+
+run_train:
+	python -c 'from wildfaire.interface.main import train; train()'
+
+run_pred:
+	python -c 'from wildfaire.interface.main import pred; pred()'
+
+run_evaluate:
+	python -c 'from wildfaire.interface.main import evaluate; evaluate()'
+
+run_all: run_preprocess run_train run_pred run_evaluate
+
 
 ##################### TESTS #####################
 

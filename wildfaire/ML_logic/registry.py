@@ -37,6 +37,7 @@ def save_model(model: keras.Model = None) -> None:
     Persist trained model locally on the hard drive at f"{LOCAL_REGISTRY_PATH}/models/{timestamp}.h5"
     - if MODEL_TARGET='gcs', also persist it in your bucket on GCS at "models/{timestamp}.h5"
     - if MODEL_TARGET='mlflow', also persist it on MLflow instead of GCS
+
     """
 
     timestamp = time.strftime("%Y%m%d-%H%M%S")
@@ -48,7 +49,9 @@ def save_model(model: keras.Model = None) -> None:
     print("✅ Model saved locally")
 
     if MODEL_TARGET == "gcs":
-        model_filename = model_path.split("/")[-1] # e.g. "20230208-161047.h5" for instance
+
+
+        model_filename = model_path.split("baseline_model.sav ")[-1]
         client = storage.Client()
         bucket = client.bucket(BUCKET_NAME)
         blob = bucket.blob(f"models/{model_filename}")
@@ -112,3 +115,10 @@ def load_model(stage="Production") -> keras.Model:
             print(f"\n❌ No model found in GCS bucket {BUCKET_NAME}")
 
             return None
+
+
+if __name__ == "__main__":
+    if MODEL_TARGET == "gcs":
+        print("saving to cloud")
+    else:
+        print("saving locally")
