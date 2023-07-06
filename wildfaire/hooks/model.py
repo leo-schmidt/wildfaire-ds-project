@@ -87,7 +87,7 @@ def test_model():
         print(
             f"[{'='*50}]\n",
             'There was an error loading the model.\n',
-            'It seems the model does not exist on your computer.',
+            'It seems there was an issue loading the model.',
             '\n\nInitializing a new one.',
             '\nSaving it as "baseline_model.h5"'
             f"[{'='*50}]\n"
@@ -137,7 +137,7 @@ def make_prediction(file_path: str):
         print(
             f"[{'='*50}]\n",
             'There was an error loading the model.\n',
-            'It seems the model does not exist on your computer.',
+            'It seems there was an issue loading the model.',
             '\n\nInitializing a new one.',
             '\nSaving it as "baseline_model.h5"'
             f"[{'='*50}]\n"
