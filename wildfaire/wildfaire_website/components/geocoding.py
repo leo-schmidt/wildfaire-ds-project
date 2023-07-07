@@ -8,11 +8,17 @@ import folium
 import pyproj
 import rasterio
 
+from datetime import datetime
 from folium.raster_layers import ImageOverlay
 from math import sqrt
 from shapely import wkt
 from shapely.ops import transform
 from shapely.geometry import Point, polygon, mapping, shape
+
+from utils import get_project_root
+
+project_root = get_project_root()
+#print(f'hello {project_root}')
 
 def nifc_active_fires():
     '''
@@ -106,6 +112,17 @@ def map_create(latitude, longitude,
      2.  - selected/not selected fire data
      3.  - forecast data returned from model
     '''
+    def get_color(x):
+        '''
+        if value = 1 (fire) then set colour to red with no opacity (1)
+        if value = 0 (no fire) set to black with high opacity (0.2)
+        '''
+        if x == 1:
+            return (255, 0, 0, 1)
+        elif x == 0:
+            return (0, 0, 0, 0.1)
+        else:
+            raise ValueError()
 
     #initiate map - centred on geocode lat/lon - can we make the zoom start scaled to search area??
     m = folium.Map(location=[latitude, longitude], zoom_start=10)
@@ -118,36 +135,25 @@ def map_create(latitude, longitude,
     #add selected fires to map
     for _, r in active_fires.iterrows():
         geo_active_fires = gpd.GeoSeries(r['geometry']).to_json()
-        geo_active_fires = folium.GeoJson(data=geo_active_fires, style_function=lambda x: {"fillColor": "red", 'color': '#FF0000'})
-        geo_active_fires.add_child(folium.Popup(r['poly_GISAcres'])) #creates popup but no content????
+        geo_active_fires = folium.GeoJson(data=geo_active_fires, style_function=lambda x: {"fillColor": "red", 'color': '#000000'})
+        geo_active_fires.layer_name = f'wildfire - {r["poly_IncidentName"]} - {r["OBJECTID"]}'
+
+        ### NEED TO SOLVE THIS - no content in popup ################################################
+        #iframe = folium.IFrame('Date:' + datetime.utcfromtimestamp(int(r["poly_CreateDate"])/1000) + '<br>' + 'Fire area (ac): ' + round(r["poly_GISAcres"]) + '<br>')
+        label = folium.Html(f'<b>date: {datetime.utcfromtimestamp(int(r["attr_ModifiedOnDateTime_dt"])/1000)}</b><br><br><b>Fire area (ac): {round(r["poly_GISAcres"])}</b>', script=True)
+        geo_active_fires.add_child(folium.Popup(label, min_width=250, max_width=250)) #creates popup but no content????
+        ##############################################################################################
         m.add_child(geo_active_fires)
 
     #add forecast to map
-    for _, f in forecast_fires.iterrows():
-        geo_forecast_fires = gpd.GeoSeries(f['geometry']).to_json()
-        geo_forecast_fires = folium.GeoJson(data=geo_forecast_fires, style_function=lambda x: {"fillColor": "orange", 'color': '#871212'})
+    #for _, f in forecast_fires.iterrows():
+    #    geo_forecast_fires = gpd.GeoSeries(f['geometry']).to_json()
+    #    geo_forecast_fires = folium.GeoJson(data=geo_forecast_fires, style_function=lambda x: {"fillColor": "orange", 'color': '#871212'})
 
-        m.add_child(geo_forecast_fires)
-
-    #add other fires to map
-    for _, s in other_wildfires.iterrows():
-        geo_other_fires = gpd.GeoSeries(s['geometry']).to_json()
-        geo_other_fires = folium.GeoJson(data=geo_other_fires)
-        m.add_child(geo_other_fires)
-
-    #def get_color(x):
-    #    decimals = 2
-    #    x = np.around(x, decimals=decimals)
-    #    ls = np.linspace(0,1,10**decimals+1)
-    #    if x == 1:
-    #        return cm.get_cmap('viridis')(ls)[np.argwhere(ls==x)]
-    #    elif x==0:
-    #        return (0, 0, 0, 0)
-    #    else:
-    #        raise ValueError()
+    #    m.add_child(geo_forecast_fires)
 
     for i in rasterIDs:
-        raster_img = rasterio.open(f"{i}_raster.tif")
+        raster_img = rasterio.open(f"{project_root}/rasters/{i}_raster.tif")
         array = raster_img.read()
         bounds = raster_img.bounds
 
@@ -156,19 +162,28 @@ def map_create(latitude, longitude,
 
         img = folium.raster_layers.ImageOverlay(
             image=np.moveaxis(array, 0, -1),
-            name='sample map',
+            name='raster mask',
             opacity=1,
             bounds=bbox,
             interactive=True,
             cross_origin=False,
-            zindex=1
-         #   colormap=lambda x: get_color(x)
+            zindex=1,
+            colormap=lambda x: get_color(x)
         )
-
+        img.layer_name = f'raster mask - {i}'
         img.add_to(m)
+
+    #add other fires to map
+
+    for _, s in other_wildfires.iterrows():
+        geo_other_fires = gpd.GeoSeries(s['geometry']).to_json()
+        geo_other_fires = folium.GeoJson(data=geo_other_fires, show=False, style_function=lambda x: {"fillColor": "purple", 'color': '#000000'})
+        geo_other_fires.layer_name = f'other fires - {s["poly_IncidentName"]}'
+        m.add_child(geo_other_fires)
 
     #add layer control widget to map
     folium.LayerControl().add_to(m)
+
     #return map to app.py
     return m
 

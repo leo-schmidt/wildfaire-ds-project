@@ -3,6 +3,9 @@ import pandas as pd
 import numpy as np
 import streamlit as st
 import matplotlib.pyplot as plt
+import os
+import glob
+
 from streamlit_folium import st_folium, folium_static
 
 from components.geocoding import nifc_active_fires
@@ -13,6 +16,11 @@ from components.geocoding import map_create
 from components.geocoding import pseudo_data
 
 from components.forecasting import raster_creation
+from utils import get_project_root
+
+
+project_root = get_project_root()
+#print(f'hello {project_root}')
 
 st.set_page_config(page_title="WildfAIre version1", page_icon=":fire:", layout="wide")
 
@@ -45,6 +53,14 @@ with st.sidebar:
 
 #if submit button is pressed then send address to the geocoder to get lat/lon
 if submit_button:
+
+    removing_files = glob.glob(f'{project_root}/rasters/*.tif')
+    for i in removing_files:
+        os.remove(i)
+
+    #delete any rasters from previous searched
+    #os.remove(file) for file in os.listdir(f'{project_root}/rasters/') if file.endswith('.tif')
+
     geocode_result = geocode_address(address_to_geocode)
 
 #if no geocoding result write the error message to screen
@@ -54,63 +70,44 @@ if submit_button:
     else:
 
          with st.spinner('building map results...please wait'):
-         #st.markdown('building map results...please wait')
-
-         #st.write(search_area_buffer(geocode_result[0], geocode_result[1]))
             ## create search buffer (50 km square around the address location)
             search_poly = search_area_buffer(geocode_result[0], geocode_result[1], search_area)
+
+          #  print(get_project_root)
 
             ## analyse wildfire data with search area
             selected_wildfires, other_wildfires = process_wildfires(geocode_result[0],
                                                                     geocode_result[1],
                                                                     active_fires,
                                                                     search_area)
-
             if len(selected_wildfires.index) > 0:
 
-            ####################################################################################
+            ###################################################################################
             ## send selected geopanda to wildfAIre API here
 
             ##pseudo model - manipulation of data
-
                 forecast_fires = pseudo_data(selected_wildfires)
 
             ##pseudo raster
-
                 #extract data from nifc geopanda
                 rasterIDs = raster_creation(selected_wildfires)
-
 
             #2. call wildfaire api
                 #response = requests.post("http://localhost:8000/predict", json=input_dict)
                 #return response.json()
 
-
-            ## display output on front end (dummy array of 64x64x1)
-                #test_api = fire_prediction(input_api_dict)
-
-               # prediction = np.array(test_api['fire_spread'])
-
-                #fig, ax = plt.subplots()
-                #ax.imshow(prediction, cmap='gray')
-                #st.pyplot(fig)
-
             ####################################################################################
             ## plot data and results
 
                 map_plot = map_create(geocode_result[0],
-                                        geocode_result[1],
-                                        search_poly,
-                                        selected_wildfires,
-                                        other_wildfires,
-                                        forecast_fires,
-                                        rasterIDs
-                                        )
-
+                                      geocode_result[1],
+                                      search_poly,
+                                      selected_wildfires,
+                                      other_wildfires,
+                                      forecast_fires,
+                                      rasterIDs)
 
                 folium_static(map_plot)
-
-
 
             else:
                 st.write('no active wildfires in search area :thumbsup:')
