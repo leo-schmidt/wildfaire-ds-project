@@ -6,6 +6,8 @@ import tensorflow as tf
 # Define file paths
 directory = os.getcwd()
 if directory.endswith('hooks'):
+    dirname = os.path.join('..', '..', 'raw_data')
+elif directory.endswith('wildfaire'):
     dirname = os.path.join('..', 'raw_data')
 else:
     dirname = 'raw_data'
