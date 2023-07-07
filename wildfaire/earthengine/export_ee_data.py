@@ -25,8 +25,7 @@ Earth Engine library.
 from typing import List, Text, Tuple
 
 import ee
-
-import ee_utils
+from wildfaire.earthengine import ee_utils
 
 
 def _get_all_feature_bands():
