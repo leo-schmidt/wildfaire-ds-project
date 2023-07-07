@@ -134,7 +134,7 @@ def _get_time_slices(
       window_start.advance(-lag - time_sampling['fire'], 'day'),
       window_start.advance(-lag, 'day')).map(
           ee_utils.remove_mask).max().rename('PrevFireMask')
-  fire = image_collections['fire'].filterDate(window_start, window_end).map(
+  fire = image_collections['fire'].filterDate(ee.Date('2022-06-15'), ee.Date('2022-06-16')).map(
       ee_utils.remove_mask).max()
   detection = fire.clamp(6, 7).subtract(6).rename('detection')
   return [drought, vegetation, weather, prev_fire, fire, detection]

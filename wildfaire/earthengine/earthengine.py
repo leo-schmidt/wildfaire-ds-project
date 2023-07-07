@@ -1,6 +1,6 @@
 import ee
 import ee_utils
-from export_ee_data import _get_time_slices
+from export_ee_data import _get_time_slices, _get_all_image_collections
 import numpy as np
 
 def get_ee_data(start_date = '2022-06-15',
