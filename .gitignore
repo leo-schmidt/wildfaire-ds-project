@@ -3,3 +3,5 @@
 *.egg-info/
 *.DS_Store
 .env
+*.ipynb_checkpoints/
+*:Zone.Identifier

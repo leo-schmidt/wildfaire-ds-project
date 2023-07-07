@@ -7,6 +7,7 @@ pandas
 pyproj
 rasterio
 shapely
+earthengine-api
 streamlit
 streamlit_folium
 
