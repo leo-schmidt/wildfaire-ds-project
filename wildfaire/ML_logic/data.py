@@ -56,29 +56,22 @@ def get_dataset(file_pattern: str,
   dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
   return dataset
 
+def get_file_paths():
+    '''
+    This function returns 3 strings
+    file paths for the train, test and evaluation datasets
 
-def get_data(
-        gcp_project:str,
-        bucket_name:str,
-    ) -> pd.DataFrame:
-    """
-    Retrieve training, testing  and evaluation set fromm google cloud storage
-    """
-    # Créez une instance du client de stockage
-    storage_client = storage.Client()
+    Call it like this: train_pattern, test_pattern, eval_pattern = get_file_paths()
 
-    # Spécifiez le nom de votre bucket
-    bucket_name = BUCKET_NAME
-    situations = ['file1.csv', 'file2.csv', 'file3.csv']
-    for situation in situations:
-        blobs = storage_client.list_blobs(bucket_name, prefix=f'{bucket_name}/RAW_DATA/next_day_wildfire_spread_{situation}_')
-
-        globals()[f"df_{situation}"] = []
-
-        for blob in blobs:
-            # Lisez le contenu de chaque blob
-            blob_content = blob.download_as_text()
-            # Ajoutez le contenu à la liste
-            globals()[f"df_{situation}"].append(blob_content)
-
-return df_train, df_test, df_eval
+    '''
+    folder = os.getcwd()
+    if folder.endswith('hooks'):
+        name = os.path.join('..', '..', 'raw_data')
+    elif directory.endswith('wildfaire'):
+        name = os.path.join('..', 'raw_data')
+    else:
+        name = 'raw_data'
+    train_pattern = os.path.join(name, 'next_day_wildfire_spread_train*')
+    test_pattern = os.path.join(name, 'next_day_wildfire_spread_test*')
+    eval_pattern = os.path.join(name, 'next_day_wildfire_spread_eval*')
+    return train_pattern, test_pattern, eval_pattern

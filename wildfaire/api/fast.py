@@ -3,14 +3,15 @@ import numpy as np
 from PIL import Image
 import io
 from pydantic import BaseModel
-from wildfaire.ML_logic.registry import load_model
+from wildfaire.ML_logic.model import load_model
 from wildfaire.ML_logic.preprocessor import preprocess_features
+from wildfaire.interface.main import pred
 
 app = FastAPI()
 
 # load model here
-model = app.state.model
-assert model is not None
+app.state.model = load_model()
+assert app.state.model is not None
 
 # define data type of the input for the API endpoint
 class Data(BaseModel):
@@ -40,7 +41,7 @@ def predict(data: Data):
     X_pred = preprocess_features(input_features)  ##If needed
 
     # dummy prediction
-    prediction = model.predict(X_pred)
+    prediction = pred(X_pred)
 
     # return JSON containing prediction array
     # only works if converted to a list first
