@@ -1,6 +1,5 @@
 import ee
-import ee_utils
-from export_ee_data import _get_time_slices, _get_all_image_collections
+from wildfaire.earthengine import ee_utils, export_ee_data
 import numpy as np
 
 def get_ee_data(start_date = '2022-06-15',
@@ -10,10 +9,8 @@ def get_ee_data(start_date = '2022-06-15',
     ### INITIALIZE GEE API ###
 
     print('Initializing Earth Engine.')
-
+    #ee.Authenticate(auth_mode='notebook')
     ee.Initialize()
-
-
 
     ### DEFINE CONSTANTS ###
 
@@ -55,7 +52,7 @@ def get_ee_data(start_date = '2022-06-15',
     # according to window defined above
     # returns list of extracted EE images
     # check _get_time_slices source code for more information
-    time_slices = _get_time_slices(window_start, window, projection, resampling_scale)
+    time_slices = export_ee_data._get_time_slices(window_start, window, projection, resampling_scale)
 
     ### COMBINE DATA AND MAKE FIRE MASKS ###
 

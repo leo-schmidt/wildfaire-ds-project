@@ -25,6 +25,8 @@ def raster_creation(forecast_fires):
     #create list of polygon ID's for code ot itterate over
     polygon_IDs = forecast_fires['OBJECTID'].tolist()
     delIDs = []
+    fires =[]
+
     #for each fire polygon create a raster grid
     for i in polygon_IDs:
 
@@ -60,7 +62,7 @@ def raster_creation(forecast_fires):
         if np.sum(cube_np) == 0:
 
            delIDs.append(i)
-           print(delIDs)
+          # print(delIDs)
 
         else:
             #extract the dimensions of initial raster
@@ -92,7 +94,9 @@ def raster_creation(forecast_fires):
             # inverts the array - no idea why!!)
             cube_flipped = np.flip(cube_padded)
 
-            ### create the tiff file
+            #array_values.append(cube_flipped)
+
+            ### create the tif file
             transform = from_origin(top_coords[1], top_coords[0], lon_res, lat_res)
 
             new_dataset = rasterio.open(f'{project_root}/rasters/{i}_raster.tif', 'w', driver='GTiff',
@@ -103,9 +107,21 @@ def raster_creation(forecast_fires):
                                         crs='+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs',
                                         transform=transform)
 
+
             new_dataset.write(cube_flipped, 1)
             new_dataset.close()
 
-    print(f'hello: {delIDs}')
-    polygon_IDs = [x for x in polygon_IDs if x not in delIDs]
-    return polygon_IDs
+            fire_dict = {"polygon_id": i}
+            with rasterio.open(f'{project_root}/rasters/{i}_raster.tif') as raster_img:
+                        fire_array = raster_img.read()
+                        bounds = raster_img.bounds
+                        fire_dict["bound"] = bounds
+                        fire_dict["values"] = fire_array
+
+
+            fires.append(fire_dict)
+
+    #print(f'hello: {delIDs}')
+    #polygon_IDs = [x for x in polygon_IDs if x not in delIDs]
+
+    return fires
