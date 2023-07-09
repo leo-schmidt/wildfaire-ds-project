@@ -1,5 +1,3 @@
-
-import pandas as pd
 import numpy as np
 import streamlit as st
 import matplotlib.pyplot as plt
@@ -7,23 +5,27 @@ import os
 import glob
 import requests
 
-from streamlit_folium import st_folium, folium_static
+from streamlit_folium import folium_static
 
 from components.geocoding import nifc_active_fires
 from components.geocoding import geocode_address
 from components.geocoding import search_area_buffer
 from components.geocoding import process_wildfires
 from components.geocoding import map_create
-from components.geocoding import pseudo_data
+from components.geocoding import map_create_forecast
+#from components.geocoding import pseudo_data
 
 from components.forecasting import raster_creation
+from components.forecasting import forecast_raster_creation
+
 from utils import get_project_root
 
 from wildfaire.earthengine.earthengine import get_ee_data
 
 project_root = get_project_root()
 
-#print(f'hello {project_root}')
+## RA - start map at US scale, plot all fires
+## RA - select fire (address or coordinate)
 
 st.set_page_config(page_title="WildfAIre version1", page_icon=":fire:", layout="wide")
 
@@ -54,10 +56,15 @@ with st.sidebar:
             address_to_geocode = f"{street},{town},{state},{zip},{country}"
             submit_button = st.form_submit_button(label="Submit")
 
+
+
+#RA have a 'predict button'
+
 #if submit button is pressed then send address to the geocoder to get lat/lon
 if submit_button:
 
     removing_files = glob.glob(f'{project_root}/rasters/*.tif')
+
     for i in removing_files:
         os.remove(i)
 
@@ -85,11 +92,8 @@ if submit_button:
                                                                     search_area)
             if len(selected_wildfires.index) > 0:
 
-            ###################################################################################
-            ## send selected geopanda to wildfAIre API here
-
             ##pseudo model - manipulation of data
-                forecast_fires = pseudo_data(selected_wildfires)
+            #    forecast_fires = pseudo_data(selected_wildfires)
 
             ##pseudo raster
                 #extract data from nifc geopanda
@@ -97,11 +101,17 @@ if submit_button:
                 rasters = raster_creation(selected_wildfires)
                 rasterIDs = [raster['polygon_id'] for raster in rasters]
 
-            ## merge tifs with ee data
+            ###################################################################################
+            ## send selected geopanda to wildfAIre API here
+
                 ee_data = []
                 for fire in rasters:
+
+                    fire['bound']
+
                     coordinates = fire['bound']
                     # get data from Google Earth Engine
+                    # RA - date to be dynamic?? Today - a number??
                     data = get_ee_data('2023-07-01', coordinates)
                     data['NDVI'] = np.ones((64,64), dtype=np.uint8) * 0.5
                     # feature selection
@@ -114,43 +124,61 @@ if submit_button:
                     # store in a list with one item for each fire
                     ee_data.append(feature_array)
 
-                st.write('Features retrieved from EE: ', data.keys())
-                st.write('Somehow lost NDVI on the way so omitting that for now.')
-                st.write('Feature array shape: ', ee_data[0].shape)
+                #2. call wildfaire api
+                    # reshape to 32x32 for the model
+                    feature_array = feature_array[::2,::2,:].reshape(1,32,32,12)
+
+                ## RA - make coordinate dynamic
+                    input_dict = {
+                    'lon' : -119.117,
+                    'lat' : 46.201,
+                    'input_features' : feature_array.tolist()
+                    }
+
+                    response = requests.post("http://localhost:8000/predict", json=input_dict)
+
+                    prediction = response.json()
+                    prediction = prediction['fire_spread'][0]
+                    #prediction for a single fire - need to create a raster
+                    prediction_array = np.array(prediction, dtype=float).reshape(32,32)
+
+                    forecast_rasters = forecast_raster_creation(fire,
+                                                                prediction_array)
+
+                    #st.write(prediction_array.shape)
+                    #fig, ax = plt.subplots(2,1)
+                    #ax[0].imshow(feature_array[:,:,:,-1].reshape(32,32), cmap='gray')
+                    #ax[1].imshow(prediction_array, cmap='gray')
+                    #st.pyplot(fig)
 
 
-            #2. call wildfaire api
-                # reshape to 32x32 for the model
-                test_array = ee_data[0][::2,::2,:].reshape(1,32,32,12)
-
-                input_dict = {
-                'lon' : -119.117,
-                'lat' : 46.201,
-                'input_features' : test_array.tolist()
-                }
-                response = requests.post("http://localhost:8000/predict", json=input_dict)
-
-                prediction = response.json()
-                prediction = prediction['fire_spread'][0]
-                prediction_array = np.array(prediction, dtype=float).reshape(32,32)
-                #st.write(prediction_array.shape)
-                fig, ax = plt.subplots(2,1)
-                ax[0].imshow(test_array[:,:,:,-1].reshape(32,32), cmap='gray')
-                ax[1].imshow(prediction_array, cmap='gray')
-                st.pyplot(fig)
+                    #st.write('Features retrieved from EE: ', data.keys())
+                    #st.write('Somehow lost NDVI on the way so omitting that for now.')
+                    #st.write('Feature array shape: ', ee_data[0].shape)
 
             ####################################################################################
             ## plot data and results
+                col1, col2 = st.columns(2)
 
                 map_plot = map_create(geocode_result[0],
                                       geocode_result[1],
                                       search_poly,
                                       selected_wildfires,
                                       other_wildfires,
-                                      forecast_fires,
                                       rasterIDs)
 
-                folium_static(map_plot)
+                col1.header("fire today :round_pushpin:")
+                with col1:
+                    folium_static(map_plot)
+
+                map_plot2 = map_create_forecast(geocode_result[0],
+                                      geocode_result[1],
+                                      search_poly,
+                                      rasterIDs)
+
+                col2.header("fire tomorrow 	:round_pushpin:")
+                with col2:
+                    folium_static(map_plot2)
 
             else:
                 st.write('no active wildfires in search area :thumbsup:')

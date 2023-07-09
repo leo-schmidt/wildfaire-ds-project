@@ -103,7 +103,6 @@ def map_create(latitude, longitude,
                search_poly,
                active_fires,
                other_wildfires,
-               forecast_fires,
                rasterIDs):
     '''
     stitch data together for plotting on a folium map
@@ -186,6 +185,67 @@ def map_create(latitude, longitude,
 
     #return map to app.py
     return m
+
+
+def map_create_forecast(latitude,
+                        longitude,
+                        search_poly,
+                        rasterIDs):
+    '''
+    stitch data together for plotting on a folium map
+    map will contain:
+     1.  - search area around address
+     2.  - selected/not selected fire data
+     3.  - forecast data returned from model
+    '''
+    def get_color(x):
+        '''
+        if value = 1 (fire) then set colour to red with no opacity (1)
+        if value = 0 (no fire) set to black with high opacity (0.2)
+        '''
+        if x == 1:
+            return (255, 0, 0, 1)
+        elif x == 0:
+            return (0, 0, 0, 0.1)
+        else:
+            raise ValueError()
+
+    #initiate map - centred on geocode lat/lon - can we make the zoom start scaled to search area??
+    m = folium.Map(location=[latitude, longitude], zoom_start=10)
+
+    #add search area to map
+    geo_json_search = folium.GeoJson(data=search_poly, style_function=lambda x: {"fillColor": "grey", 'color': '#228B22'})
+    geo_json_search.layer_name = 'Search area'
+    m.add_child(geo_json_search)
+
+    for i in rasterIDs:
+        raster_img = rasterio.open(f"{project_root}/rasters/{i}_forecast_raster.tif")
+        array = raster_img.read()
+        bounds = raster_img.bounds
+
+        x1,y1,x2,y2 = raster_img.bounds
+        bbox = [(bounds.bottom, bounds.left), (bounds.top, bounds.right)]
+
+        img = folium.raster_layers.ImageOverlay(
+            image=np.moveaxis(array, 0, -1),
+            name='raster mask',
+            opacity=1,
+            bounds=bbox,
+            interactive=True,
+            cross_origin=False,
+            zindex=1,
+            colormap=lambda x: get_color(x)
+        )
+        img.layer_name = f'raster mask - {i}'
+        img.add_to(m)
+
+    #add layer control widget to map
+    folium.LayerControl().add_to(m)
+
+    #return map to app.py
+    return m
+
+
 
 
 def pseudo_data(selected_fires):
