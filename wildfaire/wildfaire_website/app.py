@@ -18,8 +18,10 @@ from components.geocoding import pseudo_data
 from components.forecasting import raster_creation
 from utils import get_project_root
 
+from wildfaire.earthengine.earthengine import get_ee_data
 
 project_root = get_project_root()
+
 #print(f'hello {project_root}')
 
 st.set_page_config(page_title="WildfAIre version1", page_icon=":fire:", layout="wide")
@@ -90,7 +92,15 @@ if submit_button:
 
             ##pseudo raster
                 #extract data from nifc geopanda
-                rasterIDs = raster_creation(selected_wildfires)
+                #rasterIDs = raster_creation(selected_wildfires)
+                rasters = raster_creation(selected_wildfires)
+                rasterIDs = [raster['polygon_id'] for raster in rasters]
+
+            ## merge tifs with ee data
+                fire = rasters[0]
+                coordinates = fire['bound']
+                data = get_ee_data('2023-07-01', coordinates)
+                data
 
             #2. call wildfaire api
                 #response = requests.post("http://localhost:8000/predict", json=input_dict)
