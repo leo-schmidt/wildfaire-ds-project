@@ -24,7 +24,7 @@ bucket = client.get_bucket(bucket_name)
 blob = bucket.blob(model_path)
 blob.download_to_filename('baseline_model.h5')
 
-app.state.model = load_model(os.path.join(LOCAL_REGISTRY_PATH, "baseline_model.h5"))
+app.state.model = load_model("baseline_model.h5"))
 print('Model loaded.')
 
 # define data type of the input for the API endpoint
