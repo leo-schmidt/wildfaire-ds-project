@@ -66,7 +66,6 @@ def predict(data: Data):
     lon = data.lon
     lat = data.lat
     input_features = data.input_features
-    X_pred = preprocess_features(input_features)  ##If needed
 
     # dummy prediction
 
