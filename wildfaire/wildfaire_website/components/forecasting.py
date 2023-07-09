@@ -18,7 +18,6 @@ def raster_creation(forecast_fires):
     polygons in the search area. Files are 64 x 64 pixels of approx 1 km resolution
     files are saved in root directoy of the Wildfaire package
     '''
-
     project_root = get_project_root()
     print(f'hello {project_root}')
 
@@ -86,9 +85,9 @@ def raster_creation(forecast_fires):
 
             #pad the cube with padding
             cube_padded = np.pad(cube_np,
-                                pad_width=((top_padding, bottom_padding),
-                                            (right_padding, left_padding)),
-                                mode='constant', constant_values=0)
+                                    pad_width=((top_padding, bottom_padding),
+                                                (right_padding, left_padding)),
+                                    mode='constant', constant_values=0)
 
             # flip array back to correct orientation (for some reason the padding
             # inverts the array - no idea why!!)
@@ -125,3 +124,23 @@ def raster_creation(forecast_fires):
     #polygon_IDs = [x for x in polygon_IDs if x not in delIDs]
 
     return fires
+
+def forecast_raster_creation(fire_details, prediction_array):
+
+    project_root = get_project_root()
+
+    transform = from_origin(fire_details['bound'][0],
+                            fire_details['bound'][3],
+                            (fire_details['bound'][2]-fire_details['bound'][0])/32,
+                            (fire_details['bound'][3]-fire_details['bound'][1])/32)
+
+    new_dataset = rasterio.open(f'{project_root}/rasters/{fire_details["polygon_id"]}_forecast_raster.tif', 'w', driver='GTiff',
+                        height = 32,
+                        width = 32,
+                        count=1,
+                        dtype=str(prediction_array.dtype),
+                        crs='+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs',
+                        transform=transform)
+
+    new_dataset.write(prediction_array, 1)
+    new_dataset.close()
