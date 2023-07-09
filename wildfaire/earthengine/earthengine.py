@@ -10,7 +10,7 @@ def get_ee_data(start_date = '2022-06-15',
     ### INITIALIZE GEE API ###
 
     print('Initializing Earth Engine.')
-
+    ee.Authenticate(auth_mode='notebook')
     ee.Initialize()
 
 
