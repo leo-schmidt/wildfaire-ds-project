@@ -17,7 +17,7 @@ def initialize_model() -> models.Sequential:
         layers.Dense(10, activation='relu', input_shape=(32, 32, 12)),
         layers.Dense(12, activation='relu'),
         layers.Dense(7, activation='relu'),
-        layers.Dense(1, activation='linear')
+        layers.Dense(1, activation='sigmoid')
     ])
     return model
 
@@ -57,7 +57,7 @@ def train_model():
     model = compile_model(initialize_model(), 'adam')
     train_p = get_file_paths()[0]
     train_data = get_dataset(train_p)
-    model.fit(train_data, epochs=10)
+    model.fit(train_data, epochs=20)
     return model
 
 def save_model(model, model_name: str):
