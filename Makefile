@@ -7,6 +7,24 @@ reinstall_package:
 run_api:
 	uvicorn wildfaire.api.fast:app --reload
 
+
+run_data:
+	python -c 'from wildfaire.interface.main import preprocess; data()'
+
+run_preprocess:
+	python -c 'from wildfaire.interface.main import preprocess; preprocess()'
+
+run_train:
+	python -c 'from wildfaire.interface.main import train; train()'
+
+run_pred:
+	python -c 'from wildfaire.interface.main import pred; pred()'
+
+run_evaluate:
+	python -c 'from wildfaire.interface.main import evaluate; evaluate()'
+
+run_all: run_preprocess run_train run_pred run_evaluate
+
 run_api_container:
 	docker run -e PORT=8000 -p 8000:8000 --env-file .env $$GCR_REGION/$$GCP_PROJECT/$$GCR_API_IMAGE:prod
 
