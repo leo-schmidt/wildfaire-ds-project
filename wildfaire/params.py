@@ -22,7 +22,6 @@ GCR_MEMORY = os.environ.get("GCR_MEMORY")
 ##################  CONSTANTS  #####################
 LOCAL_DATA_PATH = os.path.join(os.path.expanduser('~'), "Documents", "GitHub", "Wildfaire", "data")
 LOCAL_REGISTRY_PATH =  os.path.join(os.path.expanduser('~'), "code", "constantbourdrez", "Wildfaire", "wildfaire", "hooks") #To change
-
 COLUMN_NAMES_RAW = ['elevation', 'th', 'vs',  'tmmn', 'tmmx', 'sph',
                   'pr', 'pdsi', 'NDVI', 'population', 'erc', 'PrevFireMask']
 

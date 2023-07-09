@@ -6,11 +6,24 @@ from pydantic import BaseModel
 #from wildfaire.ML_logic.registry import load_model
 from tensorflow.keras.models import load_model
 import os
+from google.cloud import storage
 from wildfaire.params import *
 
 app = FastAPI()
 
 # load model here
+client = storage.Client()
+
+# Path to newest model
+bucket_name = BUCKET_NAME
+model_path = 'Model/baseline_model.h5'
+
+#downloading newest model
+# Téléchargement du fichier du modèle depuis Google Cloud Storage
+bucket = client.get_bucket(bucket_name)
+blob = bucket.blob(model_path)
+blob.download_to_filename('baseline_model.h5')
+
 app.state.model = load_model(os.path.join(LOCAL_REGISTRY_PATH, "baseline_model.h5"))
 print('Model loaded.')
 
