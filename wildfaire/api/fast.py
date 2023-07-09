@@ -3,6 +3,7 @@ import numpy as np
 from PIL import Image
 import io
 from pydantic import BaseModel
+
 #from wildfaire.ML_logic.registry import load_model
 from tensorflow.keras.models import load_model
 import os
@@ -26,6 +27,7 @@ blob.download_to_filename('baseline_model.h5')
 
 app.state.model = load_model("baseline_model.h5"))
 print('Model loaded.')
+
 
 # define data type of the input for the API endpoint
 class Data(BaseModel):
@@ -52,12 +54,15 @@ def predict(data: Data):
     lon = data.lon
     lat = data.lat
     input_features = data.input_features
+    X_pred = preprocess_features(input_features)  ##If needed
 
     # dummy prediction
+
     # prediction = np.zeros((64,64), dtype=np.uint8)
 
     # prediction
     prediction = app.state.model.predict(input_features)
+
 
     # return JSON containing prediction array
     # only works if converted to a list first
