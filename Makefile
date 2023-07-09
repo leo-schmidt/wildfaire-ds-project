@@ -7,6 +7,12 @@ reinstall_package:
 run_api:
 	uvicorn wildfaire.api.fast:app --reload
 
+run_api_container:
+	docker run -e PORT=8000 -p 8000:8000 --env-file .env $$GCR_REGION/$$GCP_PROJECT/$$GCR_API_IMAGE:prod
+
+docker_build:
+	docker build -t $GCR_REGION/$GCP_PROJECT/$GCR_API_IMAGE:prod .
+
 
 ##################### TESTS #####################
 

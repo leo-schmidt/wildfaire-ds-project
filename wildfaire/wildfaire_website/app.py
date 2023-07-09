@@ -5,6 +5,7 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import os
 import glob
+import requests
 
 from streamlit_folium import st_folium, folium_static
 
@@ -97,14 +98,46 @@ if submit_button:
                 rasterIDs = [raster['polygon_id'] for raster in rasters]
 
             ## merge tifs with ee data
-                fire = rasters[0]
-                coordinates = fire['bound']
-                data = get_ee_data('2023-07-01', coordinates)
-                data
+                ee_data = []
+                for fire in rasters:
+                    coordinates = fire['bound']
+                    # get data from Google Earth Engine
+                    data = get_ee_data('2023-07-01', coordinates)
+                    data['NDVI'] = np.ones((64,64), dtype=np.uint8) * 0.5
+                    # feature selection
+                    # somehow lost NDVI on the way so omitting that for now
+                    features = ['elevation', 'th', 'vs',  'tmmn', 'tmmx', 'sph', 'pr', 'pdsi', 'NDVI', 'population', 'erc']
+                    # extract features and stack arrays
+                    feature_array = np.stack([data[feature] for feature in features], axis=2)
+                    # stack FireMask from NIFC data on top
+                    feature_array = np.concatenate([feature_array, fire['values'].reshape((64,64,1))], axis=2)
+                    # store in a list with one item for each fire
+                    ee_data.append(feature_array)
+
+                st.write('Features retrieved from EE: ', data.keys())
+                st.write('Somehow lost NDVI on the way so omitting that for now.')
+                st.write('Feature array shape: ', ee_data[0].shape)
+
 
             #2. call wildfaire api
-                #response = requests.post("http://localhost:8000/predict", json=input_dict)
-                #return response.json()
+                # reshape to 32x32 for the model
+                test_array = ee_data[0][::2,::2,:].reshape(1,32,32,12)
+
+                input_dict = {
+                'lon' : -119.117,
+                'lat' : 46.201,
+                'input_features' : test_array.tolist()
+                }
+                response = requests.post("http://localhost:8000/predict", json=input_dict)
+
+                prediction = response.json()
+                prediction = prediction['fire_spread'][0]
+                prediction_array = np.array(prediction, dtype=float).reshape(32,32)
+                #st.write(prediction_array.shape)
+                fig, ax = plt.subplots(2,1)
+                ax[0].imshow(test_array[:,:,:,-1].reshape(32,32), cmap='gray')
+                ax[1].imshow(prediction_array, cmap='gray')
+                st.pyplot(fig)
 
             ####################################################################################
             ## plot data and results

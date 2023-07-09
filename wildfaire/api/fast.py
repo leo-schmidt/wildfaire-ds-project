@@ -3,11 +3,16 @@ import numpy as np
 from PIL import Image
 import io
 from pydantic import BaseModel
+#from wildfaire.ML_logic.registry import load_model
+from tensorflow.keras.models import load_model
+import os
+from wildfaire.params import *
 
 app = FastAPI()
 
 # load model here
-# app.state.model = ...
+app.state.model = load_model(os.path.join(LOCAL_REGISTRY_PATH, "baseline_model.h5"))
+print('Model loaded.')
 
 # define data type of the input for the API endpoint
 class Data(BaseModel):
@@ -36,7 +41,10 @@ def predict(data: Data):
     input_features = data.input_features
 
     # dummy prediction
-    prediction = np.zeros((64,64), dtype=np.uint8)
+    # prediction = np.zeros((64,64), dtype=np.uint8)
+
+    # prediction
+    prediction = app.state.model.predict(input_features)
 
     # return JSON containing prediction array
     # only works if converted to a list first
