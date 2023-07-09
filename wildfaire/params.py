@@ -27,7 +27,6 @@ MODEL_FILE_PATH = 'baseline_model.sav'
 
 ##################  CONSTANTS  #####################
 LOCAL_DATA_PATH = os.path.join(os.path.expanduser('~'), "Documents", "GitHub", "Wildfaire", "data")
-=======
 LOCAL_REGISTRY_PATH =  os.path.join(os.path.expanduser('~'), "code", "constantbourdrez", "Wildfaire", "wildfaire", "hooks") #To change
 
 

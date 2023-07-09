@@ -7,8 +7,9 @@ from pydantic import BaseModel
 #from wildfaire.ML_logic.registry import load_model
 from tensorflow.keras.models import load_model
 import os
+from wildfaire.params import BUCKET_NAME
 from google.cloud import storage
-from wildfaire.params import *
+
 
 app = FastAPI()
 
@@ -17,16 +18,27 @@ client = storage.Client()
 
 # Path to newest model
 bucket_name = BUCKET_NAME
-model_path = 'Model/baseline_model.h5'
 
 #downloading newest model
-# Téléchargement du fichier du modèle depuis Google Cloud Storage
 bucket = client.get_bucket(bucket_name)
-blob = bucket.blob(model_path)
-blob.download_to_filename('baseline_model.h5')
+blobs = bucket.list_blobs(prefix='Model/')
 
-app.state.model = load_model("baseline_model.h5"))
-print('Model loaded.')
+#Filter to have the most recent model
+h5_files = [blob for blob in blobs if blob.name.endswith('.h5')]
+h5_files.sort(key=lambda x: x.updated, reverse=True)
+
+# Downloading the most recent
+if h5_files:
+    latest_file = h5_files[0]
+    latest_file.download_to_filename('baseline_model.h5')
+
+    app.state.model = load_model("baseline_model.h5")
+    print('Model loaded.')
+
+else:
+    print("Aucun fichier .h5 trouvé dans le bucket.")
+
+
 
 
 # define data type of the input for the API endpoint
@@ -70,7 +82,7 @@ def predict(data: Data):
             'lon' : lon,
             'lat' : lat,
             'fire_spread': prediction.tolist()
-        }
+            }
 
 @app.post('/predict_image', response_class=Response)
 def predict_image(data: Data):
