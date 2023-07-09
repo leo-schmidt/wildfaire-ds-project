@@ -5,7 +5,7 @@ import tensorflow as tf
 
 from google.cloud import storage
 from colorama import Fore, Style
-from pathlib import Path
+from pathlib import Path              ####USEFUL IF WE WANT TO TRAIN ON THE CLOUD
 
 from wildfaire.params import *
 

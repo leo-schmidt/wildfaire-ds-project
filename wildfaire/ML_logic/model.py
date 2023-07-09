@@ -34,13 +34,16 @@ def load_model():
 
     # Retrieve the model file from Google Cloud Storage
     bucket = storage_client.get_bucket(bucket_name)
-    blob = bucket.blob(model_file_path)
-    blob.download_to_filename('baseline_model.sav')
+    blob = bucket.blob(bucket_name)
+    blob.download_to_filename(model_file_path)
 
     # Load the model from the downloaded file
-    model = joblib.load('baseline_model.sav')
+    model = joblib.load(model_file_path)
 
     return model
+
+model_test = load_model()
+print(model_test)
 
 # def train_model(
 #         model: Model,
