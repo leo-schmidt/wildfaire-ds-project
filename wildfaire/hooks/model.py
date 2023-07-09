@@ -1,3 +1,4 @@
+
 from preprocessing import get_file_paths, get_dataset
 from tensorflow.keras import models, layers
 
@@ -70,11 +71,13 @@ def save_model(model, model_name: str):
     model.save(f"{model_name}.h5")
     print(f'Model was saved succesfully! as "{model_name}.h5"')
 
+
 def load_model():
     '''
     This function loads the "baseline_model.sav" file and returns the model.
     '''
     return models.load_model('baseline_model.h5')
+
 
 def test_model():
     '''
