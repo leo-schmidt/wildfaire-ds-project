@@ -1,20 +1,20 @@
 from preprocessing import get_file_paths, get_dataset
 from tensorflow.keras import models, layers
+from tensorflow.keras.optimizers import Adam
 
 def initialize_model() -> models.Sequential:
     '''
     Instantiates a base model for now.
 
     model = models.Sequential([
-        layers.Dense(10, activation='relu', input_shape=(100, 32, 32, 12)),
+        layers.Dense(10, activation='relu', input_shape=(64, 64, 12)),
         layers.Dense(12, activation='relu'),
         layers.Dense(7, activation='relu'),
-        layers.Dense(100 * 32 * 32 * 1, activation='linear'),
-        layers.Reshape((-1, 100, 32, 32, 1))
+        layers.Dense(1, activation='sigmoid')
     ])
     '''
     model = models.Sequential([
-        layers.Dense(10, activation='relu', input_shape=(32, 32, 12)),
+        layers.Dense(10, activation='relu', input_shape=(64, 64, 12)),
         layers.Dense(12, activation='relu'),
         layers.Dense(7, activation='relu'),
         layers.Dense(1, activation='sigmoid')
@@ -22,7 +22,7 @@ def initialize_model() -> models.Sequential:
     return model
 
 
-def compile_model(model: models.Sequential, optimizer_name: str) -> models.Sequential:
+def compile_model(model: models.Sequential) -> models.Sequential:
     """
     Compiles the base model with loss as 'mse' (L2), and 'mae' (L1) for metrics.
 
@@ -34,8 +34,8 @@ def compile_model(model: models.Sequential, optimizer_name: str) -> models.Seque
     """
     model.compile(
         loss = 'mse',
-        optimizer = optimizer_name,
-        metrics = ['mae']
+        optimizer = Adam(),
+        metrics = ['binary_crossentropy']
     )
 
     return model
@@ -44,7 +44,7 @@ def train_model():
     """
     This function trains initializes the model and trains it on the train dataset.
 
-    model = compile_model(initialize_model(), 'adam')
+    model = compile_model(initialize_model())
 
     train_p = get_file_paths()[0]
 
@@ -54,7 +54,7 @@ def train_model():
 
     return model
     """
-    model = compile_model(initialize_model(), 'adam')
+    model = compile_model(initialize_model())
     train_p = get_file_paths()[0]
     train_data = get_dataset(train_p)
     model.fit(train_data, epochs=20)
@@ -92,7 +92,7 @@ def test_model():
             '\nSaving it as "baseline_model.h5"'
             f"[{'='*50}]\n"
             )
-        model = compile_model(initialize_model(), 'adam')
+        model = compile_model(initialize_model())
         print('Training the model')
         model = train_model()
         print('saving the model')
@@ -106,7 +106,7 @@ def test_model():
             '\nSaving it as "baseline_model.h5"'
             f"[{'='*50}]\n"
             )
-        model = compile_model(initialize_model(), 'adam')
+        model = compile_model(initialize_model())
         print('Training the model')
         model = train_model()
         print('saving the model')
@@ -117,7 +117,7 @@ def test_model():
     return model.predict(test_inputs)
 
 def test_init_model():
-    model = compile_model(initialize_model(), 'adam')
+    model = compile_model(initialize_model())
     test_p = get_file_paths()[1] # Get test file patterns
     test_data = get_dataset(test_p) # Get dataset from test patterns
     test_inputs = next(iter(test_data))[0] # Define features and labels
@@ -142,7 +142,7 @@ def make_prediction(file_path: str):
             '\nSaving it as "baseline_model.h5"'
             f"[{'='*50}]\n"
             )
-        model = compile_model(initialize_model(), 'adam')
+        model = compile_model(initialize_model())
         print('Training the model')
         model = train_model()
         print('saving the model')
@@ -156,7 +156,7 @@ def make_prediction(file_path: str):
             '\nSaving it as "baseline_model.h5"'
             f"[{'='*50}]\n"
             )
-        model = compile_model(initialize_model(), 'adam')
+        model = compile_model(initialize_model())
         print('Training the model')
         model = train_model()
         print('saving the model')

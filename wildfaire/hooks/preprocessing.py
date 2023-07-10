@@ -302,7 +302,7 @@ def _parse_fn(
 
 def get_dataset(file_pattern: str,
     data_size = 64,
-    sample_size = 32,
+    sample_size = 64,
     batch_size = 100,
     num_in_channels = 12,
     compression_type = None,
