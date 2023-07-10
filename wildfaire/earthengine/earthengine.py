@@ -1,6 +1,7 @@
 import ee
 from wildfaire.earthengine import ee_utils, export_ee_data
 import numpy as np
+from wildfaire.params import SERVICE_ACCOUNT
 
 def get_ee_data(start_date = '2022-06-15',
                 geometry = ee_utils.COORDINATES['test']
@@ -9,8 +10,10 @@ def get_ee_data(start_date = '2022-06-15',
     ### INITIALIZE GEE API ###
 
     print('Initializing Earth Engine.')
-    #ee.Authenticate(auth_mode='notebook')
-    ee.Initialize()
+
+    credentials = ee.ServiceAccountCredentials(SERVICE_ACCOUNT, 'wildfaire-390716-f2d2375165e9.json')
+
+    ee.Initialize(credentials)
 
     ### DEFINE CONSTANTS ###
 

@@ -24,6 +24,7 @@ GCR_IMAGE = os.environ.get("GCR_IMAGE")
 GCR_REGION = os.environ.get("GCR_REGION")
 GCR_MEMORY = os.environ.get("GCR_MEMORY")
 MODEL_FILE_PATH = 'baseline_model.sav'
+SERVICE_ACCOUNT = os.environ.get("SERVICE_ACCOUNT")
 
 ##################  CONSTANTS  #####################
 LOCAL_DATA_PATH = os.path.join(os.path.expanduser('~'), "Documents", "GitHub", "Wildfaire", "data")
