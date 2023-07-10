@@ -8,6 +8,7 @@ RUN pip install -r requirements.txt
 
 # Then install wildfaire package
 COPY wildfaire wildfaire
+COPY wildfaire-390716-fefbdf3831cc.json wildfaire-390716-fefbdf3831cc.json
 COPY setup.py setup.py
 COPY Makefile Makefile
 RUN pip install .
