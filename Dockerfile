@@ -8,8 +8,9 @@ RUN pip install -r requirements.txt
 
 # Then install wildfaire package
 COPY wildfaire wildfaire
+COPY wildfaire-390716-f2d2375165e9.json wildfaire-390716-f2d2375165e9.json
 COPY setup.py setup.py
 COPY Makefile Makefile
 RUN pip install .
 
-CMD  uvicorn wildfaire.api.fast:app --host 0.0.0.0 --port $PORT
+CMD  uvicorn wildfaire.api.fast:app --host 0.0.0.0 --port 8080

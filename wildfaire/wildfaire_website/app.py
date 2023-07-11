@@ -21,6 +21,7 @@ from components.forecasting import forecast_raster_creation
 from utils import get_project_root
 
 from wildfaire.earthengine.earthengine import get_ee_data
+from wildfaire.params import API_URL
 
 project_root = get_project_root()
 
@@ -126,7 +127,8 @@ if submit_button:
 
                 #2. call wildfaire api
                     # reshape to 32x32 for the model
-                    feature_array = feature_array[::2,::2,:].reshape(1,32,32,12)
+                    #feature_array = feature_array[::2,::2,:].reshape(1,32,32,12)
+                    feature_array = feature_array.reshape(1,64,64,12)
 
                 ## RA - make coordinate dynamic
                     input_dict = {
@@ -135,12 +137,13 @@ if submit_button:
                     'input_features' : feature_array.tolist()
                     }
 
-                    response = requests.post("http://localhost:8000/predict", json=input_dict)
 
+                    response = requests.post(f"{API_URL}/predict", json=input_dict)
+                    print(response)
                     prediction = response.json()
                     prediction = prediction['fire_spread'][0]
                     #prediction for a single fire - need to create a raster
-                    prediction_array = np.array(prediction, dtype=float).reshape(32,32)
+                    prediction_array = np.array(prediction, dtype=float).reshape(64,64)
 
                     forecast_rasters = forecast_raster_creation(fire,
                                                                 prediction_array)
