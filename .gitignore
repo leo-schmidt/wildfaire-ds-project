@@ -3,6 +3,7 @@
 *.egg-info/
 *.DS_Store
 .env
+.env.yaml
 *.ipynb_checkpoints/
 *:Zone.Identifier
-**/*.tif
+*.tif
