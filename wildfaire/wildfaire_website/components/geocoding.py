@@ -203,10 +203,10 @@ def map_create_forecast(latitude,
         if value = 1 (fire) then set colour to red with no opacity (1)
         if value = 0 (no fire) set to black with high opacity (0.2)
         '''
-        if x == 1:
+        if x > 0.5:
             return (255, 0, 0, 1)
-        elif x == 0:
-            return (0, 0, 0, 0.1)
+        elif x < 0.5:
+            return (1, 0, 0, 0.1)
         else:
             raise ValueError()
 
