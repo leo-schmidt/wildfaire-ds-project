@@ -116,9 +116,9 @@ if submit_button:
 
                     # synthetic NDVI data
                     # train data mean
-                    data['NDVI'] = np.ones((64,64), dtype=np.uint8) * 5157.625
+                    #data['NDVI'] = np.ones((64,64), dtype=np.uint8) * 5157.625
                     # train data range
-                    #data['NDVI'] = np.random.uniform(-10000, 10000, (64,64))
+                    data['NDVI'] = np.random.randint(-10000, 10000, (64,64))
 
                     # feature selection
                     # somehow lost NDVI on the way so omitting that for now
