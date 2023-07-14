@@ -1,0 +1,18 @@
+FROM python:3.10.6-buster
+
+WORKDIR /app
+
+# First, pip install dependencies to avoid reinstalling packages at every rebuild
+COPY requirements.txt requirements.txt
+RUN pip install -r requirements.txt
+
+# Then install wildfaire package
+COPY wildfaire wildfaire
+COPY wildfaire-390716-f2d2375165e9.json wildfaire-390716-f2d2375165e9.json
+COPY setup.py setup.py
+COPY Makefile Makefile
+RUN pip install .
+
+EXPOSE 8501
+
+ENTRYPOINT ["streamlit", "run", "wildfaire/wildfaire_website/app.py", "--server.port=8080", "--server.address=0.0.0.0"]
