@@ -216,7 +216,7 @@ def map_create_forecast(latitude,
     #add search area to map
     geo_json_search = folium.GeoJson(data=search_poly, style_function=lambda x: {"fillColor": "grey", 'color': '#228B22'})
     geo_json_search.layer_name = 'Search area'
-    m.add_child(geo_json_search)
+    #m.add_child(geo_json_search)
 
     for i in rasterIDs:
         raster_img = rasterio.open(f"{project_root}/rasters/{i}_forecast_raster.tif")

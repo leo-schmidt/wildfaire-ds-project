@@ -8,6 +8,8 @@ import haversine
 from rasterio.transform import from_origin
 #from wildfaire.api.fast import app
 from geocube.api.core import make_geocube
+from functools import partial
+from geocube.rasterize import rasterize_image
 from haversine import inverse_haversine, Direction
 from utils import get_project_root
 
@@ -47,6 +49,7 @@ def raster_creation(forecast_fires):
         out_grid = make_geocube(
             vector_data=vector_fn,
             measurements=["OBJECTID"],
+            rasterize_function=partial(rasterize_image, all_touched=True),
             resolution=(lat_res, -lon_res),
             fill=0
             )
@@ -135,8 +138,8 @@ def forecast_raster_creation(fire_details, prediction_array):
                             (fire_details['bound'][3]-fire_details['bound'][1])/64)
 
     new_dataset = rasterio.open(f'{project_root}/rasters/{fire_details["polygon_id"]}_forecast_raster.tif', 'w', driver='GTiff',
-                        height = 32,
-                        width = 32,
+                        height = 64,
+                        width = 64,
                         count=1,
                         dtype=str(prediction_array.dtype),
                         crs='+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs',
