@@ -10,6 +10,8 @@ import os
 from wildfaire.params import BUCKET_NAME
 from google.cloud import storage
 
+from wildfaire.hooks.custom_loss import custom_loss, loss
+
 
 app = FastAPI()
 
@@ -32,7 +34,7 @@ if h5_files:
     latest_file = h5_files[0]
     latest_file.download_to_filename('baseline_model.h5')
 
-    app.state.model = load_model("baseline_model.h5")
+    app.state.model = load_model("baseline_model.h5", custom_objects={'loss': loss})
     print('Model loaded.')
 
 else:
