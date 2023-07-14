@@ -43,7 +43,7 @@ with st.sidebar:
             "How to use WildfAIire: \n"
             "1. Enter your address\n"
             "2. WildfAIre will return information \n"
-                "on wildfires near your loction"
+                "on wildfires near your location"
     )
 
     with st.form(key='address'):
@@ -52,8 +52,8 @@ with st.sidebar:
             town = st.text_input('Town')
             state = st.text_input('State/County')
             zip = st.text_input('ZIP/Postcode')
-            country = st.selectbox('Country', ['France', 'United Kingdom', 'United States'])
-            search_area = st.number_input('Search area (km)', min_value=10, max_value=100)
+            country = st.selectbox('Country', ['United States', 'France', 'United Kingdom'])
+            search_area = st.number_input('Search area (km)', min_value=10, max_value=500)
             address_to_geocode = f"{street},{town},{state},{zip},{country}"
             submit_button = st.form_submit_button(label="Submit")
 
@@ -102,22 +102,28 @@ if submit_button:
                 rasters = raster_creation(selected_wildfires)
                 rasterIDs = [raster['polygon_id'] for raster in rasters]
 
+                st.write(f'Fires found: ', len(rasters))
             ###################################################################################
             ## send selected geopanda to wildfAIre API here
 
                 ee_data = []
                 for fire in rasters:
 
-                    fire['bound']
-
                     coordinates = fire['bound']
                     # get data from Google Earth Engine
                     # RA - date to be dynamic?? Today - a number??
                     data = get_ee_data('2023-07-01', coordinates)
-                    data['NDVI'] = np.ones((64,64), dtype=np.uint8) * 0.5
+
+                    # synthetic NDVI data
+                    # train data mean
+                    #data['NDVI'] = np.ones((64,64), dtype=np.uint8) * 5157.625
+                    # train data range
+                    data['NDVI'] = np.random.randint(-10000, 10000, (64,64))
+
                     # feature selection
                     # somehow lost NDVI on the way so omitting that for now
                     features = ['elevation', 'th', 'vs',  'tmmn', 'tmmx', 'sph', 'pr', 'pdsi', 'NDVI', 'population', 'erc']
+
                     # extract features and stack arrays
                     feature_array = np.stack([data[feature] for feature in features], axis=2)
                     # stack FireMask from NIFC data on top
@@ -142,6 +148,7 @@ if submit_button:
                     print(response)
                     prediction = response.json()
                     prediction = prediction['fire_spread'][0]
+                    #prediction = feature_array[:,:,:,-1].reshape(64,64)
                     #prediction for a single fire - need to create a raster
                     prediction_array = np.array(prediction, dtype=float).reshape(64,64)
 
